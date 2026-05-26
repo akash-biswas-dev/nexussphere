@@ -1,5 +1,0 @@
-# Application won't start if configurations not found from config server.
-spring:
-  cloud:
-    config:
-      uri: http://localhost:8888

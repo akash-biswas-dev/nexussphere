@@ -19,8 +19,8 @@ services:
       - users
 
   users:
-    container_name: nexus-users
-    image: biswasakash/nexussphere-users:local
+    container_name: nexus-core
+    image: biswasakash/nexussphere-core:local
     networks:
       - service-network
       - mongo-network

@@ -1,6 +1,6 @@
 package com.biswasakashdev.nexussphere.common.auth.jwt;
 
-import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
+import com.biswasakashdev.nexussphere.common.auth.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -31,7 +31,7 @@ class JwtServiceTest {
     @Test
     void shouldThrowExpiredJwtExceptionWhenPassAExpiredToken() throws InterruptedException {
         String userId= "user-id";
-        String token = jwtService.buildToken(userId, Duration.ofMillis(100L), Map.of());
+        String token = jwtService.buildToken(userId, Duration.ofMillis(100L),TokenType.AUTHORIZATION, Map.of());
         Thread.sleep(100L);
 
         assertThrows(ExpiredJwtException.class,()->{
@@ -53,7 +53,7 @@ class JwtServiceTest {
     void shouldHaveAValidToken(){
         String userId = "a-long-userId";
 
-        String token = jwtService.buildToken(userId, Duration.ofHours(1), Map.of("account_status", AccountStatus.INACTIVE));
+        String token = jwtService.buildToken(userId, Duration.ofHours(1), TokenType.AUTHORIZATION, Map.of());
 
         Claims claims = jwtService.extractAllClaims(token);
 

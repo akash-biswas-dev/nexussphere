@@ -1,8 +1,21 @@
+services:
+  core: http://localhost:8501
 spring:
   cloud:
-    config:
-      enabled: false
-services:
-  users: http://localhost:8501
-  workspace: http://localhost:8502
+    gateway:
+      gloabalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:9000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+
 

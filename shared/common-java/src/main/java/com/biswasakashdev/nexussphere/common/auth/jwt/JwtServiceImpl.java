@@ -1,5 +1,6 @@
 package com.biswasakashdev.nexussphere.common.auth.jwt;
 
+import com.biswasakashdev.nexussphere.common.auth.TokenType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
         this.expiry = Duration.ofMinutes(DEFAULT_EXPIRY_IN_MINUTES);
     }
 
-//    Constructor to create a JwtService with custom authorization expiry.
+    //    Constructor to create a JwtService with custom authorization expiry.
     public JwtServiceImpl(
             String secret,
             String issuer,
@@ -58,13 +59,15 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String buildToken(String userId, Duration expiry, Map<String, Object> extraClaims) {
-        return createToken(userId, expiry.toMillis(), extraClaims);
+    public String buildToken(String userId, Duration expiry, TokenType tokenType, Map<String, Object> extraClaims) {
+        Map<String , Object> claims = new HashMap<>(extraClaims);
+        claims.put("token_type", tokenType.name());
+        return createToken(userId, expiry.toMillis(), claims);
     }
 
 
     @Override
-    public String getUserId(String token) throws ExpiredJwtException,MalformedJwtException {
+    public String getUserId(String token) throws ExpiredJwtException, MalformedJwtException {
         return extractAllClaims(token).getSubject();
     }
 

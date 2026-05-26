@@ -1,7 +1,20 @@
+services:
+  core: http://nexus-core:8501
 spring:
   cloud:
-    config:
-      enabled: false
-services:
-  users: http://nexus-users:8501
-  workspace: http://nexus-workspace:8502
+    gateway:
+      gloabalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+

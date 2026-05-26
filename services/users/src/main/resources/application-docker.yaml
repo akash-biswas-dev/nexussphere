@@ -1,3 +1,0 @@
-spring:
-  mongodb:
-    uri: mongodb://dev:password@nexus-mongo:27017/docker?authSource=admin

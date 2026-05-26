@@ -1,5 +1,0 @@
-spring:
-  r2dbc:
-    url: r2dbc:postgres://localhost:5432/access_manager_db
-    username: dev
-    password: password

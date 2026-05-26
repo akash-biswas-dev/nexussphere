@@ -17,21 +17,21 @@ export function NexusLogo({
         width={size}
         height={size}
         viewBox="0 0 48 48"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        // text-foreground applies the correct current color dynamically
+        className="text-foreground text-opacity-85"
       >
         <polygon
           points="24,2 43,13 43,35 24,46 5,35 5,13"
           fill="none"
-          stroke="hsl(var(--foreground))"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinejoin="round"
-          opacity="0.85"
         />
         <polygon
           points="24,10 37,17.5 37,30.5 24,38 11,30.5 11,17.5"
-          fill="hsl(var(--foreground))"
-          opacity="0.05"
+          fill="currentColor"
+          className="opacity-5" // Handled cleanly via Tailwind styles
         />
         {(
           [
@@ -48,40 +48,40 @@ export function NexusLogo({
             cx={cx}
             cy={cy}
             r="2"
-            fill="hsl(var(--foreground))"
-            opacity="0.6"
+            fill="currentColor"
+            className="opacity-60"
           />
         ))}
-        <circle cx="24" cy="24" r="4" fill="hsl(var(--foreground))" />
+        <circle cx="24" cy="24" r="4" fill="currentColor" />
         <line
           x1="5"
           y1="13"
           x2="24"
           y2="24"
-          stroke="hsl(var(--foreground))"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
-          opacity="0.5"
+          className="opacity-50"
         />
         <line
           x1="24"
           y1="24"
           x2="43"
           y2="13"
-          stroke="hsl(var(--foreground))"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
-          opacity="0.5"
+          className="opacity-50"
         />
         <line
           x1="5"
           y1="35"
           x2="43"
           y2="35"
-          stroke="hsl(var(--foreground))"
+          stroke="currentColor"
           strokeWidth="1"
           strokeLinecap="round"
-          opacity="0.18"
+          className="opacity-20"
         />
       </svg>
       {showText && (

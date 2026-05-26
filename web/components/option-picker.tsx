@@ -9,6 +9,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
 import { FieldLabel } from "./ui/field";
+import { cn } from "@/lib/utils";
 
 export default function OptionPicker({
   label,
@@ -16,19 +17,24 @@ export default function OptionPicker({
   placeHolder,
   selected,
   fieldName,
+  className,
+  onSelect,
 }: {
   options?: OptionType[];
   placeHolder?: string;
-  selected?: OptionType;
+  selected?: string;
   fieldName?: string;
   label?: string;
+  className?: string;
+  onSelect?: () => void;
 }) {
-  const [item, setItem] = useState<OptionType | undefined>(selected);
+  const defaultOption = options?.find((op) => op.key === selected);
+  const [item, setItem] = useState<OptionType | undefined>(defaultOption);
 
   const inputId = `option-${fieldName}`;
 
   return (
-    <>
+    <div className={cn("w-full", className)}>
       <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
       <DropdownMenu>
         <Input
@@ -38,7 +44,7 @@ export default function OptionPicker({
           name={fieldName}
         ></Input>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
+          <Button variant="outline" className="w-full" onClick={onSelect}>
             {item?.name || placeHolder || "Select"}
           </Button>
         </DropdownMenuTrigger>
@@ -58,11 +64,11 @@ export default function OptionPicker({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </div>
   );
 }
 
-export type OptionType = {
+export interface OptionType {
   key: string;
   name: string;
-};
+}

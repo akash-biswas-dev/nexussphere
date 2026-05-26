@@ -1,0 +1,13 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgres://localhost:5432/dev_db
+    username: dev
+    password: devpassword
+  sql:
+    init:
+      mode: always
+      schema-locations:
+       -  classpath:db/schema/schema.sql
+jwt:
+  secret: 1A50EF4F7AB1F6069BC04EEABFA52D66257D47E7FBBE0D7C1C20D2D88E9489C5
+  issuer: https://nexussphere.com

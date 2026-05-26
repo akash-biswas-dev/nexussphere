@@ -1,18 +1,15 @@
-import { getAxiosWithAuthorization } from "@/lib/axios.server";
-import { redirect } from "next/navigation";
+"use client";
+import { Navbar } from "@/components/auth/navbar";
 
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const axios = await getAxiosWithAuthorization();
-
-  const res = await axios.get("/api/v1/users");
-
-  if (res.status === 200) {
-    redirect("/dashboard");
-  }
-
-  return <div className="w-full min-h-screen relative">{children}</div>;
+  return (
+    <main className="min-h-screen w-screen flex items-center relative">
+      <Navbar />
+      {children}
+    </main>
+  );
 }

@@ -1,6 +1,6 @@
 package com.biswasakashdev.nexussphere.gateway.filters;
 
-import com.biswasakashdev.nexussphere.common.auth.AccountStatus;
+import com.biswasakashdev.nexussphere.common.auth.TokenType;
 import com.biswasakashdev.nexussphere.common.auth.jwt.JwtService;
 import com.biswasakashdev.nexussphere.gateway.exceptions.ResourceNotAllowedException;
 import io.jsonwebtoken.Claims;
@@ -19,6 +19,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -28,13 +29,12 @@ public class JwtAuthorizationFilter implements GatewayFilter {
     private final JwtService jwtService;
 
 
-    private static final List<String> ALLOWED_PATHS_ACCOUNT_INACTIVE = List.of(
-            "/api/v1/users/profile",
-            "/api/v1/auth/refresh-authorization"
+    private static final List<String> ALLOWED_PATHS_WHEN_TOKEN_TYPE_SESSION = List.of(
+            "/api/v1/auth/authorization"
     );
 
-    private static final List<String> NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE = List.of(
-            "/api/v1/auth/refresh-authorization"
+    private static final List<String> FORBIDDEN_PATHS_WHEN_TOKEN_TYPE_AUTHORIZATION = List.of(
+            "/api/v1/auth/authorization"
     );
 
 
@@ -60,17 +60,18 @@ public class JwtAuthorizationFilter implements GatewayFilter {
 
             String userId = claims.getSubject();
 
-            String accountStatus = claims.get("account_status", String.class);
+            String tokenType = claims.get("token_type", String.class);
+
+            String path = request.getPath().value();
 
 
-//            If user account status is active and wants to access inactive resources.
-            if (accountStatus.equals(AccountStatus.ACTIVE.name()) && isCurrentPathMatchesInactiveResource(request)) {
-                throw new ResourceNotAllowedException(userId, "User account status is active and wants to access inactive resources.");
+//            If user token type is SESSION.
+            if (Objects.equals(tokenType, TokenType.SESSION.name()) && !isResourceAllowedWhenTokenTypeSession(path)) {
+                throw new ResourceNotAllowedException(userId, "Resource not allowed with token type SESSION for user with id: " + userId + " at " + path);
             }
 
-//            If user account status is inactive and wants to access active resources.
-            if (accountStatus.equals(AccountStatus.INACTIVE.name()) && !isPathAllowedWhenUserAccountStatusInactive(request)) {
-                throw new ResourceNotAllowedException(userId, "User account status is inactive and wants to access active resources.");
+            if (Objects.equals(tokenType, TokenType.AUTHORIZATION.name()) && isResourceAllowedWhenTokenTypeAuthorization(path)) {
+                throw  new ResourceNotAllowedException(userId, "Resource not allowed with token type AUTHORIZATION for user with id: " + userId + " at " + path);
             }
 
             ServerHttpRequest modifiedRequest = request.mutate()
@@ -95,19 +96,13 @@ public class JwtAuthorizationFilter implements GatewayFilter {
         return response.setComplete();
     }
 
-    private boolean isCurrentPathMatchesInactiveResource(
-            ServerHttpRequest request
-    ) {
-        String currentPath = request.getPath().value();
-        return NOT_ALLOWED_PATHS_ACCOUNT_ACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
+
+    boolean isResourceAllowedWhenTokenTypeSession(String path) {
+        return ALLOWED_PATHS_WHEN_TOKEN_TYPE_SESSION.contains(path);
     }
 
-
-    private static boolean isPathAllowedWhenUserAccountStatusInactive(
-            ServerHttpRequest request
-    ) {
-        String currentPath = request.getPath().value();
-        return ALLOWED_PATHS_ACCOUNT_INACTIVE.stream().anyMatch(allowedPath -> allowedPath.equals(currentPath));
+    boolean isResourceAllowedWhenTokenTypeAuthorization(String path) {
+        return FORBIDDEN_PATHS_WHEN_TOKEN_TYPE_AUTHORIZATION.contains(path);
     }
 
 

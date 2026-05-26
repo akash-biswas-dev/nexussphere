@@ -9,13 +9,11 @@ on:
       - '.github/workflows/gateway.yml'
       - 'services/gateway/**' # Note: Changed from workspace/** to users/** to match context
       - 'shared/common-java/**'
-      - 'shared/proto-gen-java/**'
   pull_request:
     branches: ["main"]
     paths:
       - 'services/gateway/**'
       - 'shared/common-java/**'
-      - 'shared/proto-gen-java/**'
   workflow_dispatch:
     inputs:
       reason:

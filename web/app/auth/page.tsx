@@ -1,156 +1,193 @@
 "use client";
 
-import PasswordInputWithToggle from "@/components/password-input-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useActionState, useState } from "react";
+import { Label } from "@/components/ui/label";
+import React, { useState } from "react";
 import { login } from "./action";
 
-export default function Auth() {
-  const [errorStatus, formAction, isLoading] = useActionState<
-    LoginFormError,
-    FormData
-  >(login, {});
+import * as z from "zod";
+import { Field, FieldDescription } from "@/components/ui/field";
 
-  // Track the previous error state to know when the action has returned new errors
-  const [prevServerErrors, setPrevServerErrors] = useState(errorStatus);
-  const [errors, setErrors] = useState(errorStatus);
+const UserCredentialSchema = z.object({
+  email: z.email("Invalid email address"),
 
-  // Update state directly during render instead of using useEffect.
-  // This prevents an unnecessary double re-render when the server returns a new state.
-  if (errorStatus !== prevServerErrors) {
-    setPrevServerErrors(errorStatus);
-    setErrors(errorStatus);
-  }
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(15, "Passord length must not exceed 15 charecters"),
+});
+
+export default function SignInCard() {
+  const [errors, setErrors] = useState<SignInFormError>({});
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Handle standard sign-in logic here
+
+    const formData = new FormData(e.currentTarget);
+
+    const formFields = {
+      email: formData.get("email")?.toString() || "",
+      password: formData.get("password")?.toString() || "",
+    };
+
+    const formError: SignInFormError = {};
+
+    const result = UserCredentialSchema.safeParse(formFields);
+
+    if (result.error) {
+      for (const iss of result.error.issues) {
+        formError[iss.path[0] as keyof SignInFormError] = iss.message;
+      }
+      setErrors(formError);
+      return;
+    }
+
+    const userCredentials = result.data;
+
+    const rememberMe = formData.get("rememberMe") ? true : false;
+
+    const serverError = await login(userCredentials, rememberMe);
+
+    setErrors({ error: serverError });
+  };
+
+  const handleGoogleLogin = () => {
+    // Trigger Google OAuth flow
+  };
 
   return (
-    <Card className="w-full max-w-md top-1/2 left-1/2 -translate-1/2 absolute">
-      <CardHeader>
-        <CardTitle>NexusSphere</CardTitle>
+    <Card className="w-full max-w-md mx-auto shadow-lg top-1/2 left-1/2 -translate-1/2 absolute">
+      <CardHeader className="space-y-1 text-center">
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          Welcome back
+        </CardTitle>
         {errors.error ? (
-          <CardDescription className="text-red-600 font-bold">
+          <CardDescription className="text-red-600">
             {errors.error}
           </CardDescription>
         ) : (
-          <CardDescription>Enter your login credentials</CardDescription>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
         )}
-        <CardAction>
-          <Link href="/auth/sign-up">
-            <Button type="button" variant="outline">
-              Sign Up
-            </Button>
-          </Link>
-        </CardAction>
       </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Social Provider */}
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          onClick={handleGoogleLogin}
+        >
+          <svg
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fab"
+            data-icon="google"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 488 512"
+          >
+            <path
+              fill="currentColor"
+              d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h246.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+            ></path>
+          </svg>
+          Continue with Google
+        </Button>
 
-      {/* Content of the form. */}
-      <CardContent>
-        <form action={formAction}>
-          <FieldSet>
-            <FieldGroup>
-              {/* Email or Username  */}
-              <Field>
-                <FieldLabel htmlFor="username-or-email">
-                  Email Or Username
-                </FieldLabel>
-                <Input
-                  id="email-or-username"
-                  type="text"
-                  name="emailOrUsername"
-                  className={errors.emailOrUsername ? "outline-red-600" : ""}
-                  onFocus={() =>
-                    setErrors((pre) => ({
-                      ...pre,
-                      error: undefined,
-                      emailOrUsername: undefined,
-                    }))
-                  }
-                />
-                {errors.emailOrUsername && (
-                  <FieldDescription className="text-red-600 font-bold">
-                    {errors.emailOrUsername}
-                  </FieldDescription>
-                )}
-              </Field>
+        {/* Separator */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
 
-              {/* Password */}
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <PasswordInputWithToggle
-                  id="password"
-                  name="password"
-                  className={errors.password ? "outline-red-600" : ""}
-                  onFocus={() =>
-                    setErrors((pre) => ({
-                      ...pre,
-                      error: undefined,
-                      password: undefined,
-                    }))
-                  }
-                />
+        {/* Traditional Credentials Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Field className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              // type="email"
+              name="email"
+              placeholder="name@example.com"
+              // required
+              className={errors.email ? "outline-red-600" : ""}
+              onFocus={() =>
+                setErrors((pre) => ({
+                  ...pre,
+                  error: undefined,
+                  email: undefined,
+                }))
+              }
+            />
+            {errors.email && (
+              <FieldDescription className="text-red-600 font-bold">
+                {errors.email}
+              </FieldDescription>
+            )}
+          </Field>
 
-                {errors.password && (
-                  <FieldDescription className="text-red-600 font-bold">
-                    {errors.password}
-                  </FieldDescription>
-                )}
-              </Field>
+          <Field className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              required
+              name="password"
+              className={errors.password ? "outline-red-600" : ""}
+              onFocus={() =>
+                setErrors((pre) => ({
+                  ...pre,
+                  error: undefined,
+                  password: undefined,
+                }))
+              }
+            />
+            {errors.password && (
+              <FieldDescription className="text-red-600 font-bold">
+                {errors.password}
+              </FieldDescription>
+            )}
+          </Field>
 
-              {/* Checkbox to remember me or not. */}
-              <Field orientation="horizontal">
-                <Checkbox name="rememberMe" id="remember-me"></Checkbox>
-                <FieldLabel htmlFor="remember-me" className="cursor-pointer">
-                  Remember Me
-                </FieldLabel>
-              </Field>
+          <div className="flex items-center space-x-2 pt-1">
+            <Checkbox id="rememberMe" name="rememberMe" />
+            <label
+              htmlFor="rememberMe"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Remember me
+            </label>
+          </div>
 
-              {/* Submit button */}
-              <Field orientation="horizontal">
-                <Button type="submit">
-                  {isLoading ? "Saving..." : "Save Profile"}
-                </Button>
-              </Field>
-
-              {/* Sign-in with google. */}
-              <Button
-                type="button"
-                variant="outline"
-                className="flex gap-2 w-full p-2"
-              >
-                <img
-                  src={"/google-logo.webp"}
-                  alt="google"
-                  className="h-full object-contain w-fit"
-                />
-                <span>SignIn with google</span>
-              </Button>
-            </FieldGroup>
-          </FieldSet>
+          <Button type="submit" className="w-full mt-2">
+            Sign In
+          </Button>
         </form>
       </CardContent>
     </Card>
   );
 }
 
-export interface LoginFormError {
+export interface SignInFormError {
   error?: string;
-  emailOrUsername?: string;
+  email?: string;
   password?: string;
 }

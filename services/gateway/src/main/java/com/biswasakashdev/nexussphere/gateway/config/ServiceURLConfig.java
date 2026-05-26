@@ -30,8 +30,7 @@ public class ServiceURLConfig {
     }
 
     public record RegisteredServiceURLs(
-            String userService,
-            String workspaceService
+            String core
     ) {
     }
 
@@ -39,12 +38,9 @@ public class ServiceURLConfig {
     @Bean
     RegisteredServiceURLs registeredServiceURLs(){
 
-        String usersURL = environment.getProperty("services.users");
-        String workspaceURL = environment.getProperty("services.workspace");
-        if(usersURL == null  ||  workspaceURL == null ){
-            throw new IllegalStateException("Service url cant be null");
-        }
-        return new RegisteredServiceURLs(usersURL, workspaceURL);
+        String usersURL = environment.getProperty("services.core");
+
+        return new RegisteredServiceURLs(usersURL);
     }
 
 }

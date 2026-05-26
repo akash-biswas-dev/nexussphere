@@ -31,10 +31,10 @@ runs:
         maven-version: ${{ inputs.maven-version }}
 
     # Install required dependencies.
-    - name: Install proto gen
-      shell: bash
-      run: mvn clean install -f shared/proto-gen-java/pom.xml -DskipTests
-      
+    # - name: Install proto gen
+    #   shell: bash
+    #   run: mvn clean install -f shared/proto-gen-java/pom.xml -DskipTests
+    #
     - name: Install common modules
       shell: bash
       run: mvn clean install -f shared/common-java/pom.xml -DskipTests

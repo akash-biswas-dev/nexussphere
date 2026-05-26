@@ -14,6 +14,7 @@ public class GatewayConfig {
     private final ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs;
 
 
+
     public GatewayConfig(
             JwtAuthorizationFilter jwtAuthorizationFilter,
             ServiceURLConfig.RegisteredServiceURLs registeredServiceURLs
@@ -32,24 +33,16 @@ public class GatewayConfig {
                                 "/api/v1/auth/register",
                                 "/api/v1/auth"
                         )
-                        .uri(registeredServiceURLs.userService())
+                        .uri(registeredServiceURLs.core())
                 )
                 .route("user-route", r -> r
                         // Routes part of users service where Authorization filter applied.
                         .path(
                                 "/api/v1/users/**",
-                                "/api/v1/auth/refresh-authorization"
+                                "/api/v1/auth/authorization"
                         )
                         .filters(f -> f.filter(jwtAuthorizationFilter))
-                        .uri(registeredServiceURLs.userService())
-                )
-                .route("workspace_route", r -> r
-                        // Routes part of workspace service where Authorization filter applied.
-                        .path(
-                                "/api/v1/workspaces/**"
-                        )
-                        .filters(f -> f.filter(jwtAuthorizationFilter))
-                        .uri(registeredServiceURLs.workspaceService())
+                        .uri(registeredServiceURLs.core())
                 )
                 .build();
     }

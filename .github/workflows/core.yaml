@@ -1,0 +1,49 @@
+name: NexusCore CI pipeline
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - '.github/actions/setup-java-env/action.yml'
+      - '.github/actions/docker-build-push/action.yml'
+      - '.github/workflows/core.yml'
+      - 'services/core/**' # Note: Changed from workspace/** to users/** to match context
+      - 'shared/common-java/**'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'services/core/**'
+      - 'shared/common-java/**'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'To check some changes that do not trigger the workflow.'
+        required: false
+        default: 'Manual trigger'
+
+# GLOBAL VARIABLES
+env:
+  APP_NAME: core
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v4
+
+      - name: Setup env
+        uses: ./.github/actions/setup-java-env
+
+      - name: Package Application
+        # Using env.APP_NAME to target the correct directory
+        run: mvn clean package -f services/${{ env.APP_NAME }}/pom.xml -DskipTests
+      
+      - name: Build and Push the image
+        uses: ./.github/actions/docker-build-push
+        with:
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
+          branch: ${{ github.ref_name }}
+          app-name: ${{ env.APP_NAME }}
+          build-hash: ${{ github.sha }}
