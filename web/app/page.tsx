@@ -45,7 +45,7 @@ export default function NexusSphereHome() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 overflow-x-hidden relative selection:bg-zinc-800 selection:text-zinc-100">
       {/* Artboard Canvas Background Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Navbar Placeholder */}
       <header className="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-50">
@@ -88,7 +88,7 @@ export default function NexusSphereHome() {
             </motion.div>
 
             <motion.h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight lg:leading-none bg-clip-text text-transparent bg-gradient-to-b from-zinc-50 to-zinc-400"
+              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight lg:leading-none bg-clip-text text-transparent bg-linear-to-b from-zinc-50 to-zinc-400"
               variants={fadeInUp}
             >
               Collaborative business dashboards. Real-time engine.
