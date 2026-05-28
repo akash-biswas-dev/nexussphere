@@ -44,7 +44,7 @@ export default function OptionPicker({
           name={fieldName}
         ></Input>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full" onClick={onSelect}>
+          <Button variant="outline" className="w-full">
             {item?.name || placeHolder || "Select"}
           </Button>
         </DropdownMenuTrigger>
@@ -55,7 +55,12 @@ export default function OptionPicker({
               return (
                 <DropdownMenuItem
                   key={key}
-                  onClick={() => setItem({ key, name })}
+                  onClick={() => {
+                    setItem({ key, name });
+                    if (onSelect) {
+                      onSelect();
+                    }
+                  }}
                 >
                   {name}
                 </DropdownMenuItem>

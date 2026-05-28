@@ -11,58 +11,35 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useState } from "react";
+import { useActionState, useState } from "react";
 import { login } from "./action";
 
-import * as z from "zod";
 import { Field, FieldDescription } from "@/components/ui/field";
-
-const UserCredentialSchema = z.object({
-  email: z.email("Invalid email address"),
-
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(15, "Passord length must not exceed 15 charecters"),
-});
+import { Loader2 } from "lucide-react";
 
 export default function SignInCard() {
-  const [errors, setErrors] = useState<SignInFormError>({});
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle standard sign-in logic here
+  const [formState, action, isLoading] = useActionState<SignInForm, FormData>(
+    login,
+    {
+      prevState: {},
+      errors: {},
+    },
+  );
+  const [errors, setErrors] = useState<SignInFormError>(formState.errors);
+  const [prevStateError, setPrevStateError] = useState<SignInFormError>(
+    formState.errors,
+  );
 
-    const formData = new FormData(e.currentTarget);
-
-    const formFields = {
-      email: formData.get("email")?.toString() || "",
-      password: formData.get("password")?.toString() || "",
-    };
-
-    const formError: SignInFormError = {};
-
-    const result = UserCredentialSchema.safeParse(formFields);
-
-    if (result.error) {
-      for (const iss of result.error.issues) {
-        formError[iss.path[0] as keyof SignInFormError] = iss.message;
-      }
-      setErrors(formError);
-      return;
-    }
-
-    const userCredentials = result.data;
-
-    const rememberMe = formData.get("rememberMe") ? true : false;
-
-    const serverError = await login(userCredentials, rememberMe);
-
-    setErrors({ error: serverError });
-  };
+  if (formState.errors !== prevStateError) {
+    setErrors(formState.errors);
+    setPrevStateError(formState.errors);
+  }
 
   const handleGoogleLogin = () => {
     // Trigger Google OAuth flow
   };
+
+  const { prevState } = formState;
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg top-1/2 left-1/2 -translate-1/2 absolute">
@@ -119,10 +96,11 @@ export default function SignInCard() {
         </div>
 
         {/* Traditional Credentials Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={action} className="space-y-4">
           <Field className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              defaultValue={prevState.email}
               id="email"
               // type="email"
               name="email"
@@ -147,6 +125,7 @@ export default function SignInCard() {
           <Field className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
+              defaultValue={prevState.password}
               id="password"
               type="password"
               required
@@ -168,7 +147,13 @@ export default function SignInCard() {
           </Field>
 
           <div className="flex items-center space-x-2 pt-1">
-            <Checkbox id="rememberMe" name="rememberMe" />
+            <Checkbox
+              id="rememberMe"
+              name="rememberMe"
+              defaultChecked={
+                prevState.rememberMe ? "indeterminate" : undefined
+              }
+            />
             <label
               htmlFor="rememberMe"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
@@ -177,13 +162,31 @@ export default function SignInCard() {
             </label>
           </div>
 
-          <Button type="submit" className="w-full mt-2">
-            Sign In
+          <Button type="submit" className="w-full mt-2" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Signing In...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </Button>
         </form>
       </CardContent>
     </Card>
   );
+}
+
+export interface SignInForm {
+  errors: SignInFormError;
+  prevState: SignInFormFields;
+}
+
+export interface SignInFormFields {
+  email?: string;
+  password?: string;
+  rememberMe?: boolean;
 }
 
 export interface SignInFormError {

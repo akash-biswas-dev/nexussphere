@@ -9,13 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldDescription } from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BASE_URL } from "@/context/user.context";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import * as z from "zod";
 
 const UserDetailsSchema = z
@@ -38,62 +39,85 @@ const UserDetailsSchema = z
   });
 
 export default function SignUpCard() {
-  const [errors, setErrors] = useState<SignUpFormError>({});
   const router = useRouter();
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle registration logic here
 
-    const formData = new FormData(e.currentTarget);
+  const [formState, action, isLoading] = useActionState<SignUpForm, FormData>(
+    async (formState: SignUpForm, formData: FormData) => {
+      // Handle registration logic here
 
-    const userData = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      gender: formData.get("gender"),
-      confirmPassword: formData.get("confirmPassword"),
-    };
+      const userData = {
+        email: formData.get("email")?.toString(),
+        firstName: formData.get("firstName")?.toString(),
+        lastName: formData.get("lastName")?.toString(),
+        gender: formData.get("gender")?.toString(),
+        password: formData.get("password")?.toString(),
+        confirmPassword: formData.get("confirmPassword")?.toString(),
+      };
 
-    const result = UserDetailsSchema.safeParse(userData);
+      const result = UserDetailsSchema.safeParse(userData);
 
-    const formError: SignUpFormError = {};
+      const formError: SignUpFormError = {};
 
-    if (result.error) {
-      for (const iss of result.error.issues) {
-        formError[iss.path[0] as keyof SignUpFormError] = iss.message;
+      if (result.error) {
+        for (const iss of result.error.issues) {
+          formError[iss.path[0] as keyof SignUpFormError] = iss.message;
+        }
+
+        return {
+          prevState: {
+            ...userData,
+          },
+          errors: formError,
+        };
       }
-      setErrors(formError);
-      return;
-    }
 
-    const userDetails = result.data;
+      const userDetails = result.data;
 
-    const res = await axios.post(
-      `${BASE_URL}/api/v1/auth/register`,
-      {
-        email: userDetails.email,
-        password: userDetails.password,
-        gender: userDetails.gender,
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-      },
-      {
-        validateStatus: () => true,
-      },
-    );
+      const res = await axios.post(
+        `${BASE_URL}/api/v1/auth/register`,
+        {
+          email: userDetails.email,
+          password: userDetails.password,
+          gender: userDetails.gender,
+          firstName: userDetails.firstName,
+          lastName: userDetails.lastName,
+        },
+        {
+          validateStatus: () => true,
+        },
+      );
 
-    const { status, data } = res;
+      const { status, data } = res;
 
-    if (status === 201) {
-      router.replace("/auth");
-      return;
-    }
+      if (status === 201) {
+        router.replace("/auth");
+        return { prevState: {}, errors: {} };
+      }
 
-    const serverError = data.error ? data.error : "Something went wrong.";
+      const serverError: SignUpFormError = {
+        error: data.error ? data.error : "Something went wrong.",
+      };
 
-    setErrors({ error: serverError });
-  };
+      return {
+        prevState: {
+          ...userData,
+        },
+        errors: serverError,
+      };
+    },
+    { prevState: {}, errors: {} },
+  );
+
+  const [errors, setErrors] = useState<SignUpFormError>(formState.errors);
+
+  const [prevStateError, setPrevStateError] = useState<SignUpFormError>(
+    formState.errors,
+  );
+
+  if (formState.errors !== prevStateError) {
+    setErrors(formState.errors);
+    setPrevStateError(formState.errors);
+  }
 
   const genderOptions: OptionType[] = [
     { key: "MALE", name: "Male" },
@@ -102,6 +126,8 @@ export default function SignUpCard() {
     { key: "PREFER_NOT_SAY", name: "Prefer not to say" },
   ];
 
+  const { prevState } = formState;
+
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="space-y-1 text-center">
@@ -109,7 +135,9 @@ export default function SignUpCard() {
           Create an account
         </CardTitle>
         {errors.error ? (
-          <CardDescription>{errors.error}</CardDescription>
+          <CardDescription className="text-red-600">
+            {errors.error}
+          </CardDescription>
         ) : (
           <CardDescription>
             Enter your details below to create your account
@@ -117,11 +145,12 @@ export default function SignUpCard() {
         )}
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={action} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Field className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
               <Input
+                defaultValue={prevState.firstName}
                 id="firstName"
                 placeholder="John"
                 required
@@ -144,6 +173,7 @@ export default function SignUpCard() {
             <Field className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
+                defaultValue={prevState.lastName}
                 id="lastName"
                 placeholder="Doe"
                 required
@@ -168,6 +198,7 @@ export default function SignUpCard() {
           <Field className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              defaultValue={prevState.email}
               id="email"
               type="email"
               name="email"
@@ -175,11 +206,33 @@ export default function SignUpCard() {
               required
             />
           </Field>
-
-          <div className="flex gap-2">
+          <Field className="space-y-2 w-full">
+            <Label htmlFor="gender">Gender</Label>
+            <OptionPicker
+              selected=""
+              options={genderOptions}
+              fieldName="gender"
+              className={errors.confirmPassword ? "outline-red-600" : ""}
+              onSelect={() =>
+                setErrors((pre) => ({
+                  ...pre,
+                  error: undefined,
+                  gender: undefined,
+                }))
+              }
+            />
+            {errors.gender && (
+              <FieldDescription className="text-red-600 font-bold">
+                {errors.gender}
+              </FieldDescription>
+            )}
+          </Field>
+          <FieldGroup className="flex gap-2 flex-row">
+            {/* Password */}
             <Field className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
+                defaultValue={prevState.password}
                 id="password"
                 type="password"
                 name="password"
@@ -200,9 +253,12 @@ export default function SignUpCard() {
               )}
             </Field>
 
+            {/* confirmPassword */}
             <Field className="space-y-2">
-              <Label htmlFor="password">Confirm Password</Label>
+              <Label htmlFor="confirm-password">Confirm Password</Label>
               <PasswordInputWithToggle
+                defaultValue={prevState.confirmPassword}
+                id="confirm-password"
                 name="confirmPassword"
                 className={errors.confirmPassword ? "outline-red-600" : ""}
                 onFocus={() =>
@@ -219,36 +275,36 @@ export default function SignUpCard() {
                 </FieldDescription>
               )}
             </Field>
-          </div>
+          </FieldGroup>
 
-          <div className="space-y-2 w-full">
-            <Label htmlFor="gender">Gender</Label>
-            <OptionPicker
-              options={genderOptions}
-              fieldName="gender"
-              className={errors.confirmPassword ? "outline-red-600" : ""}
-              onSelect={() =>
-                setErrors((pre) => ({
-                  ...pre,
-                  error: undefined,
-                  gender: undefined,
-                }))
-              }
-            />
-            {errors.gender && (
-              <FieldDescription className="text-red-600 font-bold">
-                {errors.gender}
-              </FieldDescription>
+          <Button type="submit" className="w-full mt-2" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Signing Up...
+              </>
+            ) : (
+              "Sign Up"
             )}
-          </div>
-
-          <Button type="submit" className="w-full mt-2">
-            Sign Up
           </Button>
         </form>
       </CardContent>
     </Card>
   );
+}
+
+export interface SignUpForm {
+  errors: SignUpFormError;
+  prevState: SignUpFormFields;
+}
+
+export interface SignUpFormFields {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 export interface SignUpFormError {

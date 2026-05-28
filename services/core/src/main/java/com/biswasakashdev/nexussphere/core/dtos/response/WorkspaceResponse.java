@@ -13,6 +13,6 @@ public record WorkspaceResponse(
         LocalDateTime lastActive,
         LocalDate joinedOn,
         Long userCount,
-        Long groupCount
+        Long pageCount
 ) {
 }

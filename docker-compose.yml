@@ -2,9 +2,11 @@ services:
   # This proxy only need when running the application using docker-compose.
   web:
     container_name: nexus-web
-    image: biswasakash/nexussphere-web:local
+    image: biswasakash/nexussphere-web:docker
+    ports:
+      - "3001:3000"
     networks:
-      - proxy-network
+      - service-network
 
   # Authentication gateway for the services.
   gateway:
@@ -12,33 +14,20 @@ services:
     image: biswasakash/nexussphere-gateway:local
     networks:
       - service-network
-      - proxy-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - users
+      - core
 
-  users:
+  core:
     container_name: nexus-core
     image: biswasakash/nexussphere-core:local
     networks:
       - service-network
-      - mongo-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - mongo
-
-  mongo:
-    container_name: nexus-mongo
-    image: mongo:8.0-noble
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=dev
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    ports:
-      - "27017:27017"
-    networks:
-      - mongo-network
+      - postgres
 
   postgres:
     container_name: nexus-postgres
@@ -53,6 +42,17 @@ services:
       - ./scripts/postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql
     networks:
       - postgres-network
+
+  mongo:
+    container_name: nexus-mongo
+    image: mongo:8.0-noble
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dev
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
+    networks:
+      - mongo-network
 
 networks:
   proxy-network:

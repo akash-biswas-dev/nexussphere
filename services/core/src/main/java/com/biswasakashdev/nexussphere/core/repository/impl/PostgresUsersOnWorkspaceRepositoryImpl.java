@@ -154,7 +154,7 @@ public class PostgresUsersOnWorkspaceRepositoryImpl implements UsersOnWorkspaceR
                             .lastActive(row.get("last_active", LocalDateTime.class))
                             .joinedOn(row.get("joined_on", LocalDate.class))
                             .userCount(row.get("user_count", Long.class))
-                            .groupCount(row.get("page_count", Long.class))
+                            .pageCount(row.get("page_count", Long.class))
                             .build())
                     .all()
                     .collectList();

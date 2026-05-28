@@ -36,8 +36,8 @@ export default async function RootLayout({
   const requestPath = headersList.get("x-pathname");
 
   // If user logged in then redirect to dashboard.
-  if (authorization && requestPath && !requestPath.startsWith("/dashboard")) {
-    redirect("/dashboard");
+  if (authorization && requestPath && !requestPath.startsWith("/workspaces")) {
+    redirect("/workspaces");
   }
 
   return (
