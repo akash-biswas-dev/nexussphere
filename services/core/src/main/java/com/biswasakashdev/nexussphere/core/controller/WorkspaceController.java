@@ -1,7 +1,7 @@
 package com.biswasakashdev.nexussphere.core.controller;
 
 import com.biswasakashdev.nexussphere.common.response.Page;
-import com.biswasakashdev.nexussphere.core.dtos.requests.NewWorkspaceRequest;
+import com.biswasakashdev.nexussphere.core.dtos.response.EntityId;
 import com.biswasakashdev.nexussphere.core.dtos.response.IsNameExists;
 import com.biswasakashdev.nexussphere.core.dtos.response.UsersOnWorkspaceDTO;
 import com.biswasakashdev.nexussphere.core.dtos.response.WorkspaceResponse;
@@ -39,20 +39,21 @@ public class WorkspaceController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> createNewWorkspace(
-            @RequestHeader("Authentication-Info") String userId,
-            @RequestBody NewWorkspaceRequest newWorkspace) {
-        Mono<Workspaces> workspacesMono = workspaceService.createWorkspace(userId, newWorkspace);
+    public Mono<EntityId> createNewWorkspace(
+            @RequestHeader("Authentication-Info") String userId
+    ) {
+        Mono<Workspaces> workspacesMono = workspaceService.createWorkspace(userId);
         return workspacesMono
-                .then();
+                .flatMap(workspaces -> {
+                    return Mono.just(new EntityId(workspaces.getId()));
+                });
     }
 
     @GetMapping
     public Mono<Page<WorkspaceResponse>> getAllWorkspace(
             @RequestHeader("Authentication-Info") String userId,
-            @RequestParam(name = "page", required = false, defaultValue = "20") Integer page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") Integer pageSize,
-            @RequestParam(name = "direction", required = false, defaultValue = "ASC") Page.Direction direction
+            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "6") Integer pageSize
     ) {
         Map<String, Page.Direction> sort= new HashMap<>();
 

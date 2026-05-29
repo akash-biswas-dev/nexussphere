@@ -39,7 +39,8 @@ public class GatewayConfig {
                         // Routes part of users service where Authorization filter applied.
                         .path(
                                 "/api/v1/users/**",
-                                "/api/v1/auth/authorization"
+                                "/api/v1/auth/authorization",
+                                "/api/v1/workspaces/**"
                         )
                         .filters(f -> f.filter(jwtAuthorizationFilter))
                         .uri(registeredServiceURLs.core())

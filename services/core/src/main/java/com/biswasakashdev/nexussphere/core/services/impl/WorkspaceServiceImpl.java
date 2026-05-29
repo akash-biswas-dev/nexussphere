@@ -3,7 +3,6 @@ package com.biswasakashdev.nexussphere.core.services.impl;
 import com.biswasakashdev.nexussphere.common.exceptions.DataSourceOperationFailedException;
 import com.biswasakashdev.nexussphere.common.response.Page;
 import com.biswasakashdev.nexussphere.core.dtos.response.UsersOnWorkspaceDTO;
-import com.biswasakashdev.nexussphere.core.dtos.requests.NewWorkspaceRequest;
 import com.biswasakashdev.nexussphere.core.dtos.response.WorkspaceResponse;
 import com.biswasakashdev.nexussphere.core.models.UsersOnWorkspace;
 import com.biswasakashdev.nexussphere.core.models.Workspaces;
@@ -18,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Service
@@ -32,11 +30,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     @Override
     @Transactional
     public Mono<Workspaces> createWorkspace(
-            String userId,
-            NewWorkspaceRequest newWorkspace
+            String userId
     ) {
         Workspaces workspaces = Workspaces.builder()
-                .name(newWorkspace.name())
+                .name("Untitled Workspace")
                 .ownedId(userId)
                 .createdOn(LocalDate.now())
                 .build();

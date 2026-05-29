@@ -1,5 +1,5 @@
+import { logout } from "@/app/auth/action";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
-import { NexusLogo } from "../nexus-logo";
-import Link from "next/link";
-import { logout } from "@/app/auth/action";
 import useUserContext from "@/context/user.context";
+import { ChevronDown, LogOut, Settings, User } from "lucide-react";
+import Link from "next/link";
+import { NexusLogo } from "../nexus-logo";
 
 export function TopNavbar() {
   const { authorization } = useUserContext();
@@ -21,37 +20,15 @@ export function TopNavbar() {
 
   const initials = firstName[0] + lastName[0];
 
-  const username = "abbbcd99";
-
   return (
     <header className="h-13 border-b border-border bg-background flex items-center justify-between px-5 shrink-0 z-10">
       <Link href="/home">
         <NexusLogo size={24} />
       </Link>
 
-      {/* Middle — Nav links */}
-      <nav className="flex items-center gap-1">
-        {["Overview", "Activity", "Settings"].map((item) => (
-          <Button
-            key={item}
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground text-xs"
-          >
-            {item}
-          </Button>
-        ))}
-      </nav>
-
       {/* Right — Actions + Avatar */}
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground"
-        >
-          <Bell className="h-4 w-4" />
-        </Button>
+        {/* If anything need to add on the right side of the navbar */}
 
         <DropdownMenu>
           {/* Dropdown with username and initials */}
@@ -62,7 +39,6 @@ export function TopNavbar() {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs font-medium">@{username}</span>
               <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </div>
           </DropdownMenuTrigger>
