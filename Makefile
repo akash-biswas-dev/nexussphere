@@ -1,9 +1,9 @@
 
 
 # Config to generate code using buf.
-gen-code-java:
-	rm -rf shared/proto-gen-java/src
-	buf generate --template shared/proto-gen-java/buf.gen.yaml
+data-processor-gen-code:
+	rm -rf services/data-processor/gen
+	buf generate --template services/data-processor/buf.gen.yaml
 
 # Configurations related to test workflows.
 act_cmd=act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --env GITHUB_REF_NAME=dev --container-architecture linux/arm64 --secret-file .secrets -W

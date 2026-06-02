@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package data_processor.v1;
+
+
+message GiveDataInsightsRequest{
+  string data_source_id= 1;
+}
+
+message GiveDataInsightsResponse{
+  string resp_message = 1;
+}
+
+service DataProcessorService {
+  rpc GiveDataInsights(GiveDataInsightsRequest) returns (GiveDataInsightsResponse);
+}
