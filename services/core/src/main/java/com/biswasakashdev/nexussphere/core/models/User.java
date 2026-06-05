@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Table("nex_users")
-public class Users {
+public class User {
     @Id
     private String id;
     private String email;

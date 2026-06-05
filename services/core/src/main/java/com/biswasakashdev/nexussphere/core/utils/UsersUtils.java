@@ -2,24 +2,24 @@ package com.biswasakashdev.nexussphere.core.utils;
 
 import com.biswasakashdev.nexussphere.core.dtos.response.UserResponse;
 import com.biswasakashdev.nexussphere.core.dtos.response.UserProfileResponse;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 
 public class UsersUtils {
 
-    public static UserResponse getUserResponse(Users users) {
+    public static UserResponse getUserResponse(User user) {
         return new UserResponse(
-                users.getEmail(),
-                users.getFirstName(),
-                users.getLastName()
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName()
         );
     }
 
-    public static UserProfileResponse getUserProfileResponse(Users users) {
+    public static UserProfileResponse getUserProfileResponse(User user) {
         return new UserProfileResponse(
-                users.getEmail(),
-                users.getFirstName(),
-                users.getLastName(),
-                users.getGender()
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getGender()
         );
     }
 }

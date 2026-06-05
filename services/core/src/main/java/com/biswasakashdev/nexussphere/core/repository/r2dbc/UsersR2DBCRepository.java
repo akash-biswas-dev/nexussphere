@@ -1,12 +1,12 @@
 package com.biswasakashdev.nexussphere.core.repository.r2dbc;
 
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
-public interface UsersReactiveRepository extends ReactiveCrudRepository<Users, String> {
+public interface UsersR2DBCRepository extends ReactiveCrudRepository<User, String> {
 
-    Mono<Users> findByEmailIgnoreCase(String email);
+    Mono<User> findByEmailIgnoreCase(String email);
 
     Mono<Boolean> existsByEmailIgnoreCase(String email);
 }

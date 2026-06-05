@@ -1,15 +1,13 @@
 package com.biswasakashdev.nexussphere.core.repository;
 
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.models.Workspaces;
 import com.biswasakashdev.nexussphere.core.repository.impl.PostgresUserRepositoryImpl;
 import com.biswasakashdev.nexussphere.core.repository.impl.PostgresWorkspaceRepositoryImpl;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
@@ -31,7 +29,7 @@ public class WorkspaceRepositoryTest extends AbstractRepositoryTest {
 
     @BeforeEach
     void beforeEach() {
-        Users users = Users.builder()
+        User user = User.builder()
                 .email("test@example.com")
                 .password("password")
                 .firstName("John")
@@ -42,7 +40,7 @@ public class WorkspaceRepositoryTest extends AbstractRepositoryTest {
                 .build();
 
         usersRepository
-                .saveUser(users)
+                .saveUser(user)
                 .doOnNext(savedUser -> {
                     this.workspaces = Workspaces
                             .builder()

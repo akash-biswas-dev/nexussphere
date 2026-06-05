@@ -3,7 +3,7 @@ package com.biswasakashdev.nexussphere.core.services.impl;
 import com.biswasakashdev.nexussphere.core.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.core.exception.InvalidCredentialException;
 import com.biswasakashdev.nexussphere.core.exception.UserNotFoundException;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.repository.UsersRepository;
 import com.biswasakashdev.nexussphere.core.services.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public Mono<Users> validateUser(UserCredentials credentials) {
-        Mono<Users> usersMono = usersRepository.findByEmail(credentials.email());
+    public Mono<User> validateUser(UserCredentials credentials) {
+        Mono<User> usersMono = usersRepository.findByEmail(credentials.email());
 
         return usersMono
                 .onErrorResume((err) -> {

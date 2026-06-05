@@ -4,7 +4,7 @@ import com.biswasakashdev.nexussphere.common.exceptions.DataSourceOperationFaile
 import com.biswasakashdev.nexussphere.common.response.Page;
 import com.biswasakashdev.nexussphere.core.dtos.response.UsersOnWorkspaceDTO;
 import com.biswasakashdev.nexussphere.core.dtos.response.WorkspaceResponse;
-import com.biswasakashdev.nexussphere.core.models.UsersOnWorkspace;
+import com.biswasakashdev.nexussphere.core.models.UserOnWorkspace;
 import com.biswasakashdev.nexussphere.core.repository.UsersOnWorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -23,25 +23,25 @@ public class PostgresUsersOnWorkspaceRepositoryImpl implements UsersOnWorkspaceR
     private final DatabaseClient databaseClient;
 
     @Override
-    public Mono<UsersOnWorkspace> save(UsersOnWorkspace usersOnWorkspace) {
+    public Mono<UserOnWorkspace> save(UserOnWorkspace userOnWorkspace) {
         return databaseClient
                 .sql("""
                            INSERT INTO users_on_workspaces(user_id, workspace_id, write_permission, last_active, joined_on)
                                                    VALUES (:user_id, :workspace_id, :write_permission , :last_active , :joined_on)
                         """)
-                .bind("user_id", usersOnWorkspace.getUserId())
-                .bind("workspace_id", usersOnWorkspace.getWorkspaceId())
-                .bind("write_permission", usersOnWorkspace.getWritePermission())
+                .bind("user_id", userOnWorkspace.getUserId())
+                .bind("workspace_id", userOnWorkspace.getWorkspaceId())
+                .bind("write_permission", userOnWorkspace.getWritePermission())
                 .bind("joined_on", LocalDate.now())
                 .bind("last_active", LocalDateTime.now())
                 .fetch()
                 .rowsUpdated()
                 .flatMap((count) -> {
                     if (count == 0) {
-                        String msg = String.format("Failed to add user %s to the workspace %s", usersOnWorkspace.getUserId(), usersOnWorkspace.getWorkspaceId());
+                        String msg = String.format("Failed to add user %s to the workspace %s", userOnWorkspace.getUserId(), userOnWorkspace.getWorkspaceId());
                         return Mono.error(new DataSourceOperationFailedException(msg));
                     }
-                    return Mono.just(usersOnWorkspace);
+                    return Mono.just(userOnWorkspace);
                 });
     }
 

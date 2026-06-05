@@ -2,7 +2,7 @@ package com.biswasakashdev.nexussphere.core.repository.impl;
 
 import com.biswasakashdev.nexussphere.core.models.Workspaces;
 import com.biswasakashdev.nexussphere.core.repository.WorkspaceRepository;
-import com.biswasakashdev.nexussphere.core.repository.r2dbc.WorkspaceReactiveRepository;
+import com.biswasakashdev.nexussphere.core.repository.r2dbc.WorkspaceR2DBCRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Repository;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostgresWorkspaceRepositoryImpl implements WorkspaceRepository {
 
-    private final WorkspaceReactiveRepository workspaceReactiveRepository;
+    private final WorkspaceR2DBCRepository workspaceR2DBCRepository;
 
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
@@ -29,18 +29,18 @@ public class PostgresWorkspaceRepositoryImpl implements WorkspaceRepository {
 
     @Override
     public Mono<Workspaces> findById(String id) {
-        return workspaceReactiveRepository.findById(id);
+        return workspaceR2DBCRepository.findById(id);
     }
 
     @Override
     public Mono<Boolean> existsByName(String name, String userId) {
-        return workspaceReactiveRepository
+        return workspaceR2DBCRepository
                 .existsByNameAndOwnedId(name, userId);
     }
 
     @Override
     public Mono<Void> deleteById(String id) {
-        return workspaceReactiveRepository
+        return workspaceR2DBCRepository
                 .deleteById(id);
     }
 }

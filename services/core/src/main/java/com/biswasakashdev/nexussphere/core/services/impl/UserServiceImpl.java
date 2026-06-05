@@ -4,9 +4,9 @@ import com.biswasakashdev.nexussphere.core.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.core.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.core.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.core.exception.UserNotFoundException;
-import com.biswasakashdev.nexussphere.core.models.Gender;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.repository.UsersRepository;
+import com.biswasakashdev.nexussphere.core.repository.r2dbc.UsersR2DBCRepository;
 import com.biswasakashdev.nexussphere.core.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,19 +17,22 @@ import reactor.core.publisher.Mono;
 
 import javax.security.auth.login.AccountLockedException;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UsersRepository usersRepository;
+    private final UsersR2DBCRepository usersR2dbcRepository;
+    private final UsersRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Mono<Users> createUser(NewUserRequest newUser) {
-
-        Users user = Users.builder()
+    public Mono<User> createUser(NewUserRequest newUser) {
+        String id = UUID.randomUUID().toString();
+        User user = User.builder()
+                .id(id)
                 .email(newUser.email())
                 .password(passwordEncoder.encode(newUser.password()))
                 .firstName(newUser.firstName())
@@ -38,7 +41,8 @@ public class UserServiceImpl implements UserService {
                 .createdOn(LocalDate.now())
                 .accountLocked(false)
                 .build();
-        return usersRepository
+
+        return userRepository
                 .saveUser(user)
                 .onErrorResume(
                         DuplicateKeyException.class,
@@ -53,26 +57,10 @@ public class UserServiceImpl implements UserService {
                 );
     }
 
-    @Override
-    public Mono<Users> updateOrSaveUser(Users users) {
-        return usersRepository.saveUser(users);
-    }
 
     @Override
-    public Mono<Users> findUserByEmailOrUsername(String emailOrUsername) {
-        Mono<Users> usersMono = usersRepository
-                .findByEmail(emailOrUsername)
-                .switchIfEmpty(Mono.create(sink -> {
-                    log.error("User not found with Email or Username: {}", emailOrUsername);
-                    sink.error(new UserNotFoundException("User not found"));
-                }));
-
-        return verifyUsers(usersMono);
-    }
-
-    @Override
-    public Mono<Users> findUserById(String userId) {
-        Mono<Users> usersMono = usersRepository
+    public Mono<User> findUserById(String userId) {
+        Mono<User> usersMono = usersR2dbcRepository
                 .findById(userId)
                 .switchIfEmpty(Mono.create(sink -> {
                     log.error("User not found with id: {}", userId);
@@ -81,7 +69,7 @@ public class UserServiceImpl implements UserService {
         return verifyUsers(usersMono);
     }
 
-    protected Mono<Users> verifyUsers(Mono<Users> usersMono) {
+    protected Mono<User> verifyUsers(Mono<User> usersMono) {
         return usersMono
                 .flatMap(users -> {
                     if (users.getAccountLocked()) {
@@ -94,14 +82,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Boolean> isUserExists(String userId) {
-        return usersRepository.isUserExistsByEmail(userId);
-    }
+    public Mono<User> updateUserDetails(String userId, UserProfileRequest profileRequest) {
 
-    @Override
-    public Mono<Users> updateUserProfile(String userId, UserProfileRequest profileRequest) {
-
-        return usersRepository
+        return usersR2dbcRepository
                 .findById(userId)
                 .flatMap((users) -> {
                     // Update username and account status.
@@ -110,18 +93,13 @@ public class UserServiceImpl implements UserService {
 
                     //Add user profile.
 
-                    return usersRepository.saveUser(users);
+                    return usersR2dbcRepository.save(users);
                 })
                 .switchIfEmpty(Mono.error(new RuntimeException()))
                 .onErrorResume(Throwable.class, (err) -> {
                     log.error("User profile setup not successful for user: {}", userId);
                     return Mono.error(new RuntimeException("Service unavailable please try agiain later."));
                 });
-    }
-
-    @Override
-    public Mono<Boolean> isUserExistsWithUsername(String username) {
-        return usersRepository.isUserExistsByEmail(username);
     }
 
 
