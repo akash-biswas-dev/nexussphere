@@ -1,10 +1,12 @@
 from fastapi import FastAPI, HTTPException
 
-from agent.router import analytics_router
+from agent.router import analytics_agent_router
 
-# model = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
-
-app = FastAPI(title="Ai analytics engine")
+app = FastAPI(
+    title="Data Science & Analyst AI Agent",
+    description="An advanced multi-format data agent built with FastAPI, LangGraph, and Gemini 2.5 Flash.",
+    version="1.0.0",
+)
 
 
 @app.get("/healtz")
@@ -17,4 +19,4 @@ def error():
     raise HTTPException(status_code=404, detail="Error endpoint, Blahhhhh....")
 
 
-app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(analytics_agent_router, prefix="/api/v1")
