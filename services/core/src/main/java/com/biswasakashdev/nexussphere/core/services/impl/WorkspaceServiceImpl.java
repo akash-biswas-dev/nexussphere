@@ -4,7 +4,7 @@ import com.biswasakashdev.nexussphere.common.exceptions.DataSourceOperationFaile
 import com.biswasakashdev.nexussphere.common.response.Page;
 import com.biswasakashdev.nexussphere.core.dtos.response.UsersOnWorkspaceDTO;
 import com.biswasakashdev.nexussphere.core.dtos.response.WorkspaceResponse;
-import com.biswasakashdev.nexussphere.core.models.UsersOnWorkspace;
+import com.biswasakashdev.nexussphere.core.models.UserOnWorkspace;
 import com.biswasakashdev.nexussphere.core.models.Workspaces;
 import com.biswasakashdev.nexussphere.core.repository.UsersOnWorkspaceRepository;
 import com.biswasakashdev.nexussphere.core.repository.WorkspaceRepository;
@@ -42,8 +42,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .save(workspaces)
                 .flatMap((savedWorkspace) -> {
 
-                    UsersOnWorkspace usersOnWorkspace =
-                            UsersOnWorkspace.builder()
+                    UserOnWorkspace userOnWorkspace =
+                            UserOnWorkspace.builder()
                                     .userId(userId)
                                     .workspaceId(savedWorkspace.getId())
                                     .lastActive(LocalDateTime.now())
@@ -51,7 +51,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                                     .writePermission(true)
                                     .build();
 
-                    return usersOnWorkspaceRepository.save(usersOnWorkspace)
+                    return usersOnWorkspaceRepository.save(userOnWorkspace)
                             .then(Mono.just(savedWorkspace));
                 })
                 .onErrorResume(DataSourceOperationFailedException.class, (err) ->

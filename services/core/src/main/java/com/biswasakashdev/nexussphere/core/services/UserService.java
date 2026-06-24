@@ -2,23 +2,16 @@ package com.biswasakashdev.nexussphere.core.services;
 
 import com.biswasakashdev.nexussphere.core.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.core.dtos.requests.UserProfileRequest;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import reactor.core.publisher.Mono;
 
 public interface UserService {
 
-    Mono<Users> createUser(NewUserRequest newUserRequest);
+    Mono<User> createUser(NewUserRequest newUserRequest);
 
-    Mono<Users> updateOrSaveUser(Users users);
+    Mono<User> findUserById(String userId);
 
-    Mono<Users> findUserByEmailOrUsername(String emailOrUsername);
+    Mono<User> updateUserDetails(String userId, UserProfileRequest profileRequest);
 
-    Mono<Users> findUserById(String userId);
-
-    Mono<Boolean> isUserExists(String userId);
-
-    Mono<Users> updateUserProfile(String userId,UserProfileRequest profileRequest);
-
-    Mono<Boolean> isUserExistsWithUsername(String username);
 
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "users_on_workspaces")
-public class UsersOnWorkspace {
+public class UserOnWorkspace {
 
     private String userId;
     private String workspaceId;

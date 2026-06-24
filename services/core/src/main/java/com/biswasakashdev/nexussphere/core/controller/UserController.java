@@ -4,7 +4,7 @@ package com.biswasakashdev.nexussphere.core.controller;
 import com.biswasakashdev.nexussphere.core.dtos.response.UserResponse;
 import com.biswasakashdev.nexussphere.core.dtos.requests.UserProfileRequest;
 import com.biswasakashdev.nexussphere.core.dtos.response.UserProfileResponse;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.services.UserService;
 import com.biswasakashdev.nexussphere.core.utils.UsersUtils;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping(value = "/api/v1/users")
 @RequiredArgsConstructor
-public class UsersController {
+public class UserController {
 
     private final UserService userService;
 
@@ -25,7 +25,7 @@ public class UsersController {
     public Mono<UserResponse> getUser(
             @RequestHeader(name = "Authentication-Info") String userId
     ) {
-        Mono<Users> usersMono = userService.findUserById(userId);
+        Mono<User> usersMono = userService.findUserById(userId);
         return usersMono.map(UsersUtils::getUserResponse);
     }
 
@@ -34,7 +34,7 @@ public class UsersController {
     public Mono<UserProfileResponse> getUserProfile(
             @RequestHeader(name = "Authentication-Info") String userId
     ){
-        Mono<Users> usersMono = userService.findUserById(userId);
+        Mono<User> usersMono = userService.findUserById(userId);
         return usersMono.map(UsersUtils::getUserProfileResponse);
     }
 
@@ -46,7 +46,7 @@ public class UsersController {
             @RequestHeader(name = "Authentication-Info") String userId,
             @RequestBody UserProfileRequest userProfileRequest
     ) {
-        Mono<Users> usersMono = userService.updateUserProfile(userId, userProfileRequest);
+        Mono<User> usersMono = userService.updateUserDetails(userId, userProfileRequest);
         return usersMono.then();
     }
 

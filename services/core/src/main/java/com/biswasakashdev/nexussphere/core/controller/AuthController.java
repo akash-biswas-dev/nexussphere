@@ -7,7 +7,7 @@ import com.biswasakashdev.nexussphere.core.dtos.requests.NewUserRequest;
 import com.biswasakashdev.nexussphere.core.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.core.dtos.response.Authorization;
 import com.biswasakashdev.nexussphere.core.dtos.response.SessionDetails;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.services.AuthService;
 import com.biswasakashdev.nexussphere.core.services.UserService;
 import com.biswasakashdev.nexussphere.core.utils.UsersUtils;
@@ -59,7 +59,7 @@ public class AuthController {
 //        How many days the generated session token valid.
         Duration duration = rememberMe ? Duration.ofDays(15) : Duration.ofDays(1);
 
-        Mono<Users> usersMono = authService.validateUser(credentials);
+        Mono<User> usersMono = authService.validateUser(credentials);
 
         return usersMono
                 .flatMap(users -> {
@@ -90,7 +90,7 @@ public class AuthController {
     public Mono<ResponseEntity<Authorization>> refreshAuthorization(
             @RequestHeader("Authentication-Info") String userId
     ) {
-        Mono<Users> userMono = userService.findUserById(userId);
+        Mono<User> userMono = userService.findUserById(userId);
 
         return userMono
                 .map(user -> {

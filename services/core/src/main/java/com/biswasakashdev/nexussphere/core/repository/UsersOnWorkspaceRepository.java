@@ -3,14 +3,12 @@ package com.biswasakashdev.nexussphere.core.repository;
 import com.biswasakashdev.nexussphere.common.response.Page;
 import com.biswasakashdev.nexussphere.core.dtos.response.UsersOnWorkspaceDTO;
 import com.biswasakashdev.nexussphere.core.dtos.response.WorkspaceResponse;
-import com.biswasakashdev.nexussphere.core.models.UsersOnWorkspace;
+import com.biswasakashdev.nexussphere.core.models.UserOnWorkspace;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public interface UsersOnWorkspaceRepository {
 
-    Mono<UsersOnWorkspace> save(UsersOnWorkspace usersOnWorkspace);
+    Mono<UserOnWorkspace> save(UserOnWorkspace userOnWorkspace);
 
     Mono<Page<UsersOnWorkspaceDTO>> findAllUsersByWorkspaceId(String workspaceId, Page.PageDetails pageInfo);
 

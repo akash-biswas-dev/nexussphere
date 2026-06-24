@@ -1,8 +1,6 @@
 package com.biswasakashdev.nexussphere.core.repository;
 
-import com.biswasakashdev.nexussphere.core.config.AuthConfig;
-import com.biswasakashdev.nexussphere.core.exception.UserAlreadyExistsException;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.repository.impl.PostgresUserRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Import(value = {
         PostgresUserRepositoryImpl.class
 })
-class UsersRepositoryTest extends AbstractRepositoryTest{
+class UserRepositoryTest extends AbstractRepositoryTest{
 
     @Autowired
     private UsersRepository usersRepository;
 
     private final String userEmail = "abc@gmail.com";
-    private final Users users = Users.builder()
+    private final User user = User.builder()
             .email(userEmail)
             .password("password")
             .firstName("John")
@@ -39,7 +37,7 @@ class UsersRepositoryTest extends AbstractRepositoryTest{
     @Test
     void shouldSaveUser() {
         usersRepository
-                .saveUser(users)
+                .saveUser(user)
                 .as(StepVerifier::create)
                 .expectNextCount(1)
                 .verifyComplete();
@@ -49,8 +47,8 @@ class UsersRepositoryTest extends AbstractRepositoryTest{
     void shouldThrowUserAlreadyExistExceptionWhenTheEmailAlreadyExist() {
 
         usersRepository
-                .saveUser(users)
-                .then(usersRepository.saveUser(users))
+                .saveUser(user)
+                .then(usersRepository.saveUser(user))
                 .as(StepVerifier::create)
                 .expectError(DuplicateKeyException.class)
                 .verify();
@@ -59,7 +57,7 @@ class UsersRepositoryTest extends AbstractRepositoryTest{
 
     @Test
     void shouldReturnEmptyMonoIfUserNotFound() {
-        Mono<Users> usersMono = usersRepository.saveUser(users);
+        Mono<User> usersMono = usersRepository.saveUser(user);
         usersMono
                 .then(usersRepository.findByEmail(userEmail))
                 .as(StepVerifier::create)

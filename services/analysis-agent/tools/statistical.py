@@ -1,0 +1,98 @@
+from typing import Any, Dict, List, Literal, Tuple, Type
+
+from langchain_core.tools import BaseTool
+from pydantic import BaseModel, Field
+
+# 1. Define the valid operations using a Literal type for strict validation
+AllowedOperations = Literal["mean", "median", "std_dev", "mode", "null_dist"]
+
+
+# 2. Define the Pydantic Input Schema for the Tool
+class StatisticalToolInputSchema(BaseModel):
+    data_set_id: str = Field(
+        description="Data source id where the operations are done."
+    )
+    # Dict[AllowedOperations, List[str]] ensures that the LLM can only pass valid keys.
+    # If it tries to pass an unknown operation string, Pydantic validation fails immediately.
+    operations: Dict[AllowedOperations, List[str]] = Field(
+        description="A dictionary where keys are statistical operations and values are lists of feature names.",
+        json_schema_extra={
+            "std_dev": ["feature-1", "feature-2"],
+            "mean": ["feature-1"],
+            "null_dist": ["feature-3"],
+        },
+    )
+
+
+# 3. Implement the Custom BaseTool
+class StatisticalTool(BaseTool):
+    name: str = "statistical_calculation_tool"
+    description: str = (
+        "Calculates statistical metrics (mean, median, std_dev, mode, null_dist) "
+        "or performs feature updates on specified columns. Accepts an operations map."
+    )
+    args_schema: Type[BaseModel] = StatisticalToolInputSchema
+
+    def _run(self, operations: Dict[str, List[str]]) -> str:
+        """Synchronous fallback fallback. Forces async execution."""
+        print("Error thrown from Statistical tool")
+        raise NotImplementedError(
+            "This tool only supports asynchronous execution via _arun."
+        )
+
+    async def _arun(
+        self, operations: Dict[AllowedOperations, List[str]]
+    ) -> Dict[str, List[Tuple[str, Dict[str, Any]]]]:
+        """
+        Asynchronously handles the gRPC request payload and parses the targeted backend metrics.
+        """
+        # Formulate output structure mimicking your required nested format:
+        # { 'op': [ ('feature_name', {'error': None, 'value': '...' }) ] }
+        output_results: Dict[str, List[Tuple[str, Dict[str, Any]]]] = {}
+
+        try:
+            # ==========================================
+            # PLACEHOLDER FOR YOUR gRPC CLIENT CALL
+            # ==========================================
+            # Example stub assuming you have a compiled gRPC client stub stub:
+            #
+            # request = data_pipeline_pb2.StatRequest(payload=json.dumps(operations))
+            # grpc_response = await grpc_client.CalculateMetrics(request)
+            # remote_data = json.loads(grpc_response.json_data)
+
+            # Simulated backend response parsing for demonstration:
+            for op, features in operations.items():
+                output_results[op] = []
+                for feature in features:
+                    # Mocking a successful outcome or standard calculation processing
+                    # In production, replace this with data pulled from your gRPC channel response
+                    simulated_value = "0.0"
+                    error_message = None
+
+                    if feature == "unknown_or_broken_feature":
+                        error_message = (
+                            "Feature column not found in current dataset context."
+                        )
+                        simulated_value = "NaN"
+
+                    # Explicitly appending tuple structures per feature inside the operation array
+                    output_results[op].append(
+                        (feature, {"error": error_message, "value": simulated_value})
+                    )
+
+        except Exception as grpc_error:
+            # Capture network drops, gRPC status code anomalies, or connection timeouts
+            # Populate error fields gracefully so the LLM agent can plan a retry or recovery route
+            for op, features in operations.items():
+                output_results[op] = [
+                    (
+                        feature,
+                        {
+                            "error": f"gRPC network transaction failed: {str(grpc_error)}",
+                            "value": "None",
+                        },
+                    )
+                    for feature in features
+                ]
+
+        return output_results

@@ -22,27 +22,52 @@ CREATE TABLE workspaces
     workspace_name VARCHAR(50)  NOT NULL,
     owner_id       VARCHAR(100) NOT NULL,
     created_on     DATE         NOT NULL,
+    UNIQUE (owner_id, workspace_name),
     FOREIGN KEY (owner_id) REFERENCES nex_users (id) ON DELETE CASCADE
-);
-
-
-CREATE TABLE pages
-(
-    id           VARCHAR(50) PRIMARY KEY,
-    page_name    VARCHAR(50) NOT NULL,
-    created_on   DATE        NOT NULL,
-    workspace_id VARCHAR(50) NOT NULL,
-    FOREIGN KEY (workspace_id) REFERENCES workspaces (id)
 );
 
 CREATE TABLE users_on_workspaces
 (
-    user_id          VARCHAR(100) NOT NULL,
-    workspace_id     VARCHAR(50)  NOT NULL,
-    write_permission BOOLEAN      NOT NULL,
-    joined_on        DATE         NOT NULL,
-    last_active      TIMESTAMP    NOT NULL,
+    user_id          VARCHAR(50) NOT NULL,
+    workspace_id     VARCHAR(50) NOT NULL,
+    write_permission BOOLEAN     NOT NULL,
+    joined_on        DATE        NOT NULL,
+    last_active      TIMESTAMP   NOT NULL,
     PRIMARY KEY (user_id, workspace_id),
     FOREIGN KEY (user_id) REFERENCES nex_users (id),
     FOREIGN KEY (workspace_id) REFERENCES workspaces (id)
 );
+
+CREATE TABLE data_sources
+(
+    id           VARCHAR(50) PRIMARY KEY,
+    name         VARCHAR(50)  NOT NULL UNIQUE,
+    description  VARCHAR(100) NOT NULL,
+    data_type    VARCHAR(20)  NOT NULL,
+    workspace_id VARCHAR(50)  NOT NULL,
+    UNIQUE (workspace_id, name),
+    FOREIGN KEY (workspace_id) REFERENCES workspaces (id)
+);
+
+CREATE TABLE repository_source
+(
+    datasource_id   VARCHAR(50) PRIMARY KEY,
+    repository_type VARCHAR(20)  NOT NULL,
+    url             VARCHAR(100) NOT NULL,
+    username        VARCHAR(50)  NOT NULL,
+    password        VARCHAR(100) NOT NULL,
+    FOREIGN KEY (datasource_id) REFERENCES data_sources (id) ON DELETE CASCADE
+);
+
+CREATE TABLE tabular_source
+(
+    datasource_id VARCHAR(50) PRIMARY KEY,
+    file_id       VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE unstructured_source
+(
+    datasource_id VARCHAR(50) PRIMARY KEY,
+    file_id       VARCHAR(50) NOT NULL
+);
+

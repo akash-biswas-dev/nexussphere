@@ -7,8 +7,7 @@ import com.biswasakashdev.nexussphere.core.dtos.requests.UserCredentials;
 import com.biswasakashdev.nexussphere.core.exception.InvalidCredentialException;
 import com.biswasakashdev.nexussphere.core.exception.UserAlreadyExistsException;
 import com.biswasakashdev.nexussphere.core.exception.UserNotFoundException;
-import com.biswasakashdev.nexussphere.core.models.Gender;
-import com.biswasakashdev.nexussphere.core.models.Users;
+import com.biswasakashdev.nexussphere.core.models.User;
 import com.biswasakashdev.nexussphere.core.services.AuthService;
 import com.biswasakashdev.nexussphere.core.services.UserService;
 import org.junit.jupiter.api.Test;
@@ -110,7 +109,7 @@ class AuthControllerTest {
                 "password"
         );
 
-        Users users = Users.builder()
+        User user = User.builder()
                 .id("a-long-userId")
                 .firstName("John")
                 .email("abc@email.com")
@@ -118,23 +117,23 @@ class AuthControllerTest {
                 .build();
 
 
-        when(userService.findUserById(users.getId()))
-                .thenReturn(Mono.just(users));
+        when(userService.findUserById(user.getId()))
+                .thenReturn(Mono.just(user));
 
-        when(jwtService.buildToken(eq(users.getId()), any(Duration.class), eq(TokenType.AUTHORIZATION), any())).thenReturn("token");
+        when(jwtService.buildToken(eq(user.getId()), any(Duration.class), eq(TokenType.AUTHORIZATION), any())).thenReturn("token");
 
 
         webClient.get()
                 .uri("/api/v1/auth/authorization")
-                .header("Authentication-Info", users.getId())
+                .header("Authentication-Info", user.getId())
                 .exchange()
                 .expectStatus()
                 .isOk()
                 .expectBody()
                 .jsonPath("$.user.firstName")
-                .isEqualTo(users.getFirstName())
+                .isEqualTo(user.getFirstName())
                 .jsonPath("$.user.lastName")
-                .isEqualTo(users.getLastName())
+                .isEqualTo(user.getLastName())
                 .jsonPath("$.token")
                 .isEqualTo("token");
 

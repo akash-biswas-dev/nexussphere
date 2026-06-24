@@ -1,8 +1,8 @@
 package com.biswasakashdev.nexussphere.core.repository;
 
 import com.biswasakashdev.nexussphere.common.response.Page;
-import com.biswasakashdev.nexussphere.core.models.Users;
-import com.biswasakashdev.nexussphere.core.models.UsersOnWorkspace;
+import com.biswasakashdev.nexussphere.core.models.User;
+import com.biswasakashdev.nexussphere.core.models.UserOnWorkspace;
 import com.biswasakashdev.nexussphere.core.models.Workspaces;
 import com.biswasakashdev.nexussphere.core.repository.impl.PostgresUserRepositoryImpl;
 import com.biswasakashdev.nexussphere.core.repository.impl.PostgresUsersOnWorkspaceRepositoryImpl;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         PostgresUserRepositoryImpl.class,
         PostgresUsersOnWorkspaceRepositoryImpl.class
 })
-class UsersOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
+class UserOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
     private UsersOnWorkspaceRepository usersOnWorkspaceRepository;
@@ -55,7 +55,7 @@ class UsersOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
     void shouldSaveUsersOnWorkspace() {
 
 
-        Users users = Users.builder()
+        User user = User.builder()
                 .email("jhonsmith@gmail.com")
                 .password("password")
                 .firstName("John")
@@ -67,7 +67,7 @@ class UsersOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
 
 
         usersRepository
-                .saveUser(users)
+                .saveUser(user)
                 .flatMap(savedUser -> {
                     Workspaces workspaces = Workspaces
                             .builder()
@@ -78,8 +78,8 @@ class UsersOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
                     return workspaceRepository
                             .save(workspaces)
                             .flatMap(savedWorkspace -> {
-                                UsersOnWorkspace usersOnWorkspace =
-                                        UsersOnWorkspace
+                                UserOnWorkspace userOnWorkspace =
+                                        UserOnWorkspace
                                                 .builder()
                                                 .workspaceId(savedWorkspace.getId())
                                                 .userId(savedUser.getId())
@@ -94,7 +94,7 @@ class UsersOnWorkspaceRepositoryTest extends AbstractRepositoryTest {
                                         new HashMap<>()
                                 );
                                 return usersOnWorkspaceRepository
-                                        .save(usersOnWorkspace)
+                                        .save(userOnWorkspace)
                                         .then(usersOnWorkspaceRepository.findAllUsersByWorkspaceId(savedWorkspace.getId(), pageDetails));
                             });
                 })
