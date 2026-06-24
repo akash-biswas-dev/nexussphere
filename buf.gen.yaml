@@ -1,0 +1,21 @@
+version: v2
+inputs:
+  - directory: proto
+plugins:
+  # Rust plugins.
+  - remote: buf.build/community/neoeinstein-prost:v0.5.0
+    out: services/data-processor/proto-gen
+  - remote: buf.build/community/neoeinstein-tonic:v0.5.0
+    out: services/data-processor/proto-gen
+  # Python plugins
+  
+    # protocolbuffers/python depends on protocolbuffers/pyi
+  - remote: buf.build/protocolbuffers/pyi:v35.0
+    out: services/analysis-agent/proto-gen
+    # Python plugins
+  - remote: buf.build/protocolbuffers/python:v35.0
+    out: services/analysis-agent/proto-gen 
+    # grpc/python depends on protocolbuffers/python
+  - remote: buf.build/grpc/python:v1.81.1
+    out: services/analysis-agent/proto-gen
+

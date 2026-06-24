@@ -7,11 +7,13 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 
 from tools.statistical import StatisticalTool
+from tools.data import DataShapeTool, DataSampleTool
 
 from .model import gemini_model
 
 # Bind the tools explicitly to the Gemini LLM instance
 statistical_tool = StatisticalTool()
+
 tools = [statistical_tool]
 llm_with_tools = gemini_model.bind_tools(tools)
 

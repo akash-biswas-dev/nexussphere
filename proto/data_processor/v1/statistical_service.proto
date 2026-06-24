@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package data_processor.v1;
+
+// The statistical tools that mostly use for know the insights of the data.
+service StatisticalService{
+
+}
+
+
+

@@ -7,8 +7,10 @@ requires-python = ">=3.9"
 dependencies = [
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.128.8",
+    "grpcio>=1.80.0",
     "langchain>=0.3.30",
     "langchain-google-genai>=2.1.12",
     "langgraph>=0.6.11",
+    "protobuf>=6.33.6",
     "pydantic>=2.13.4",
 ]

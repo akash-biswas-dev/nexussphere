@@ -1,9 +1,13 @@
 
 
 # Config to generate code using buf.
-data-processor-gen-code:
-	rm -rf services/data-processor/gen
-	buf generate --template services/data-processor/buf.gen.yaml
+proto-gen:
+
+	rm -rf services/data-processor/proto-gen
+
+	rm -rf "services/analysis-agent/proto-gen"
+
+	buf generate
 
 # Configurations related to test workflows.
 act_cmd=act -P ubuntu-latest=catthehacker/ubuntu:act-latest --bind --env GITHUB_REF_NAME=dev --container-architecture linux/arm64 --secret-file .secrets -W
