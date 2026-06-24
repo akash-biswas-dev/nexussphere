@@ -3,14 +3,34 @@ syntax = "proto3";
 package data_processor.v1;
 
 
-message GiveDataInsightsRequest{
+service DataInformationService{
+  rpc GetDataSample(GetDataSampleRequest) returns (stream GetDataSampleResponse);
+
+  rpc GetDataShape(GetDataShapeRequest) returns (GetDataShapeResponse);
+}
+
+message GetDataSampleRequest{
+
+  enum Position{
+    POSITION_UNSPECIFIED = 0;
+    POSITION_HEAD = 1;
+    POSITION_TAIL = 2;
+  }
   string data_source_id= 1;
+  Position position = 2;
+  int32 rows = 3;
+  
 }
 
-message GiveDataInsightsResponse{
-  string resp_message = 1;
+message GetDataSampleResponse{
+  bytes data = 1;
 }
 
-service DataProcessorService {
-  rpc GiveDataInsights(GiveDataInsightsRequest) returns (GiveDataInsightsResponse);
+message GetDataShapeRequest{
+  string data_source_id = 1;
+}
+
+message GetDataShapeResponse{
+  uint64 rows = 1;
+  uint64 cols = 2;
 }

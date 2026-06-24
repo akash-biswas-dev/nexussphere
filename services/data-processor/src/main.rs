@@ -1,5 +1,5 @@
 mod data_processor {
-    include!("gen/data_processor/v1/data_processor.v1.rs");
+    include!("../proto-gen/data_processor/v1/data_processor.v1.rs");
 }
 
 use tonic::{Request, Response, Status, transport::Server};
@@ -13,18 +13,7 @@ use data_processor::{
 pub struct WorkerNode {}
 
 #[tonic::async_trait]
-impl DataProcessorService for WorkerNode {
-    async fn give_data_insights(
-        &self,
-        req: Request<GiveDataInsightsRequest>,
-    ) -> std::result::Result<Response<GiveDataInsightsResponse>, Status> {
-        let data_info = req.into_inner();
-        println!("{}", data_info.data_source_id);
-        Ok(Response::new(GiveDataInsightsResponse {
-            resp_message: String::from("Hello"),
-        }))
-    }
-}
+impl DataProcessorService for WorkerNode {}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
