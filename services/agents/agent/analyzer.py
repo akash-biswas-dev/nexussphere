@@ -7,13 +7,19 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 
 from tools.statistical import StatisticalTool
+<<<<<<< HEAD:services/analysis-agent/agent/analyzer.py
 from tools.data import DataShapeTool, DataSampleTool
+=======
+>>>>>>> dev:services/agents/agent/analyzer.py
 
 from .model import gemini_model
 
 # Bind the tools explicitly to the Gemini LLM instance
 statistical_tool = StatisticalTool()
+<<<<<<< HEAD:services/analysis-agent/agent/analyzer.py
 
+=======
+>>>>>>> dev:services/agents/agent/analyzer.py
 tools = [statistical_tool]
 llm_with_tools = gemini_model.bind_tools(tools)
 

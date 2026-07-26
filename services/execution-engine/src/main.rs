@@ -1,5 +1,5 @@
 mod data_processor {
-    include!("../proto-gen/data_processor/v1/data_processor.v1.rs");
+    include!("../gen/data_processor/v1/data_processor.v1.rs");
 }
 
 use tonic::{Request, Response, Status, transport::Server};
